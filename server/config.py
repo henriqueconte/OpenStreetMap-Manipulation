@@ -1,4 +1,4 @@
 HOSTNAME = "postgresql.ensimag.fr"
 DATABASE = "osm"
-USER = "LOGIN"
-PASSWORD = "LOGIN"
+USER = "figueirh"
+PASSWORD = "figueirh"
