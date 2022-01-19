@@ -14,7 +14,7 @@ class WMSHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
-    # Example of get request: localhost:4242/wms?request=GetMap&layer=nom&height=100&width=100&srs=EPSG:3857&bbox=5.7,45.1,5.8,45.1,5.8,45.2,5.7,45.2
+    # Example of get request: http://localhost:4242/wms?request=GetMap&layer=nom&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
     def do_GET(self):
 
         if self.path.startswith("/wms"):
@@ -37,12 +37,21 @@ class WMSHandler(BaseHTTPRequestHandler):
                     self.send_error(500, "SRS invalide: %s" % params["srs"][0])
                     return
 
-                if len(params["bbox"][0].split(',')) != 8:
+                if len(params["bbox"][0].split(',')) != 4:
                     self.send_error(500, "BBox invalide : %s" % params["bbox"][0])
                     # We still need to format the bounding box to send as parameter on q11.py
 
+                width = int(params["width"][0])
+                height = int(params["height"][0])
+                bbox_list = params["bbox"][0].split(',')
+                init_x = float(bbox_list[0])
+                end_x = float(bbox_list[1])
+                init_y = float(bbox_list[2])
+                end_y = float(bbox_list[3])
+
                 # Open question 11 Python file, sending parameters from get request
-                os.system('python3 q11.py {} {}')
+                # How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000
+                os.system(f'python3 q11.py {init_x} {end_x} {init_y} {end_y} {width} {height}')
 
             except Exception as inst:
                 self.send_error(500, 'Erreur : %s' % inst)

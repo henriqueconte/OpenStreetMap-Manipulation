@@ -49,13 +49,13 @@ def execute_query():
                                     WHERE tags ? 'highway' 
                                         AND NOT ST_IsEmpty(linestring) 
                                         AND ST_Intersects(
-                                            linestring,
+                                            ST_SetSRID(linestring, 3857),
                                             ST_SetSRID(
                                                 ST_MakeBox2D(
                                                     ST_Point({init_x}, {init_y}),
                                                     ST_Point({end_x}, {end_y})
                                                 ),
-                                                4326
+                                                3857
                                             )
                                         );"""
                 )
