@@ -44,7 +44,7 @@ def execute_query():
         # Instantiating the drawer helper
         image_drawer = drawer.Image(width, height)
         
-        cursor = db.execute_query("""SELECT ST_AsText(linestring)
+        cursor = db.execute_query(f"""SELECT ST_AsText(linestring)
                                     FROM ways 
                                     WHERE tags ? 'highway' 
                                         AND NOT ST_IsEmpty(linestring) 
@@ -52,8 +52,8 @@ def execute_query():
                                             linestring,
                                             ST_SetSRID(
                                                 ST_MakeBox2D(
-                                                    ST_Point(5.7, 45.1),
-                                                    ST_Point(5.8, 45.2)
+                                                    ST_Point({init_x}, {init_y}),
+                                                    ST_Point({end_x}, {end_y})
                                                 ),
                                                 4326
                                             )
