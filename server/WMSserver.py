@@ -14,7 +14,7 @@ class WMSHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
-    # Example of get request: http://localhost:4242/wms?request=GetMap&layer=nom&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
+    # Example of get request: http://localhost:4242/wms?request=GetMap&layer=school,townhall&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
     def do_GET(self):
 
         if self.path.startswith("/wms"):
@@ -48,10 +48,11 @@ class WMSHandler(BaseHTTPRequestHandler):
                 end_x = float(bbox_list[1])
                 init_y = float(bbox_list[2])
                 end_y = float(bbox_list[3])
+                layers = params["layer"][0]
 
                 # Open question 11 Python file, sending parameters from get request
                 # How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000
-                os.system(f'python3 q11.py {init_x} {end_x} {init_y} {end_y} {width} {height}')
+                os.system(f'python3 q11.py {init_x} {end_x} {init_y} {end_y} {width} {height} {layers}')
 
             except Exception as inst:
                 self.send_error(500, 'Erreur : %s' % inst)

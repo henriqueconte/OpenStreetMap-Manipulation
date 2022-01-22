@@ -2,10 +2,11 @@ import database as db
 from sys import argv
 import re
 import drawer
+import random
 
 ########
 #
-# How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000
+# How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000 school,townhall
 #
 ########
 
@@ -40,6 +41,7 @@ def execute_query():
         end_y = float(argv[4])
         width = int(argv[5])
         height = int(argv[6])
+        layers = argv[7].split(",")
 
         # Instantiating the drawer helper
         image_drawer = drawer.Image(width, height)
@@ -64,6 +66,30 @@ def execute_query():
         for row in cursor:
             point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
             image_drawer.draw_linestring(point_list, (2/255, 130/255, 200/255, 255/255))
+
+
+        for element in layers:
+            cursor = db.execute_query(f"""SELECT ST_AsText(linestring)
+                                FROM ways 
+                                WHERE ways.tags->'amenity' = '{element}'
+                                    AND NOT ST_IsEmpty(linestring) 
+                                    AND ST_Intersects(
+                                        ST_SetSRID(linestring, 3857),
+                                        ST_SetSRID(
+                                            ST_MakeBox2D(
+                                                ST_Point({init_x}, {init_y}),
+                                                ST_Point({end_x}, {end_y})
+                                            ),
+                                            3857
+                                        )
+                                    );"""
+            )
+            
+            stroke_color = (random.randint(0, 255)/255, 130/255, random.randint(0,255)/255, 255/255)
+            # For every linestring received, we parse the coordinates and draw them on the final image. 
+            for row in cursor:
+                point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
+                image_drawer.draw_linestring(point_list, stroke_color)
         
         image_drawer.save("map.png")
 
