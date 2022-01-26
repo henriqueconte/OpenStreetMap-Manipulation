@@ -3,6 +3,8 @@ from sys import argv
 import re
 import drawer
 import random
+import cv2
+import numpy as np
 
 ########
 #
@@ -43,22 +45,10 @@ def execute_query(init_x, init_y, end_x, end_y, width, height, layers):
                                     WHERE tags ? 'highway' 
                                         AND NOT ST_IsEmpty(linestring) 
                                         AND ST_Intersects(
-                                            ST_SetSRID(linestring, 3857),
-                                            ST_SetSRID(
-                                                ST_MakeBox2D(
-                                                    ST_Transform(
-                                                        ST_SetSRID(
-                                                            ST_Point({init_x}, {init_y}),
-                                                            3857), 
-                                                        4326),
-                                                    ST_Transform(
-                                                        ST_SetSRID(
-                                                            ST_Point({end_x}, {end_y}),
-                                                            3857), 
-                                                        4326)
-                                                ),
-                                                3857
-                                            )
+                                            linestring,
+                                            ST_Transform(ST_MakeEnvelope(
+                                                {init_x}, {init_y}, {end_x}, {end_y}, 3857
+                                            ), 4326)    
                                         );"""
         )
     
@@ -68,46 +58,51 @@ def execute_query(init_x, init_y, end_x, end_y, width, height, layers):
         image_drawer.draw_linestring(point_list, (2/255, 130/255, 200/255, 255/255))
 
 
-    for element in layers:
-        cursor = db.execute_query(f"""SELECT ST_AsText(ST_Transform(linestring, 3857))
-                            FROM ways 
-                            WHERE ways.tags->'amenity' = '{element}'
-                                AND NOT ST_IsEmpty(linestring) 
-                                AND ST_Intersects(
-                                            ST_SetSRID(linestring, 3857),
-                                            ST_SetSRID(
-                                                ST_MakeBox2D(
-                                                    ST_Transform(
-                                                        ST_SetSRID(
-                                                            ST_Point({init_x}, {init_y}),
-                                                            3857), 
-                                                        4326),
-                                                    ST_Transform(
-                                                        ST_SetSRID(
-                                                            ST_Point({end_x}, {end_y}),
-                                                            3857), 
-                                                        4326)
-                                                ),
-                                                3857
-                                            )
-                                        );"""
-        )
+    # for element in layers:
+    #     cursor = db.execute_query(f"""SELECT ST_AsText(ST_Transform(linestring, 3857))
+    #                         FROM ways 
+    #                         WHERE ways.tags->'amenity' = '{element}'
+    #                             AND NOT ST_IsEmpty(linestring) 
+    #                             AND ST_Intersects(
+    #                                         ST_SetSRID(linestring, 3857),
+    #                                         ST_SetSRID(
+    #                                             ST_MakeBox2D(
+    #                                                 ST_Transform(
+    #                                                     ST_SetSRID(
+    #                                                         ST_Point({init_x}, {init_y}),
+    #                                                         3857), 
+    #                                                     4326),
+    #                                                 ST_Transform(
+    #                                                     ST_SetSRID(
+    #                                                         ST_Point({end_x}, {end_y}),
+    #                                                         3857), 
+    #                                                     4326)
+    #                                             ),
+    #                                             3857
+    #                                         )
+    #                                     );"""
+    #     )
         
-        stroke_color = (random.randint(0, 255)/255, random.randint(0, 255)/255, random.randint(0,255)/255, 255/255)
-        # For every linestring received, we parse the coordinates and draw them on the final image. 
-        for row in cursor:
-            point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
-            image_drawer.draw_linestring(point_list, stroke_color)
+    #     stroke_color = (random.randint(0, 255)/255, random.randint(0, 255)/255, random.randint(0,255)/255, 255/255)
+    #     # For every linestring received, we parse the coordinates and draw them on the final image. 
+    #     for row in cursor:
+    #         point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
+    #         image_drawer.draw_linestring(point_list, stroke_color)
     
     filename = f"tuiles/highway-{init_x}-{init_y}-{end_x}-{end_y}.png"
     image_drawer.save(filename)
-
+    mirror_image(filename)
     cursor.close()
     db.close_connection()
 
     return filename
     # except:
     #     print("error")
+
+def mirror_image(filename):
+    img = cv2.imread(filename)
+    img_mirror = np.flip(img, axis=1)
+    cv2.imwrite(filename, img_mirror)
 
 
 ######
