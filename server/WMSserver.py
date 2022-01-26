@@ -3,16 +3,12 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse as urlparse
 import os
+from q11 import execute_query
 
 PORT_NUMBER = 4242
 
 
 class WMSHandler(BaseHTTPRequestHandler):
-
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
 
     # Example of get request: http://localhost:4242/wms?request=GetMap&layers=school,townhall&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
     def do_GET(self):
@@ -49,15 +45,14 @@ class WMSHandler(BaseHTTPRequestHandler):
                 layers = params["layers"][0]
 
                 # Open question 11 Python file, sending parameters from get request
-                # How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000
-                # print("init_x: ", init_x, "end_x: ", end_x, "init_y ", init_y, "end_y: ", end_y, "width: ", width, "height: ", height, "layers: ", layers)
-                os.system(f'python3 q11.py {init_x} {init_y} {end_x} {end_y} {width} {height} {layers}')
-                print("FINISHED CREATING MAP")
+                # How to execute: python3 q11.py 635956.0753326665 5645333.161029978 640848.0451429178 5650225.13084023 1000 1000
+                filename = execute_query(init_x, init_y, end_x, end_y, width, height, layers)
+                self.send_png_image(filename)
 
             except Exception as inst:
                 self.send_error(500, 'Erreur : %s' % inst)
 
-            self._set_headers()
+
             # params contient tous les paramètres GET
             # Il faut maintenant les traiter...
             # ... C'est à vous !

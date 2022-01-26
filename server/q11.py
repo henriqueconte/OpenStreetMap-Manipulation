@@ -6,7 +6,7 @@ import random
 
 ########
 #
-# How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000 school,townhall
+# How to execute: python3 q11.py 635956.0753326665 5645333.161029978 640848.0451429178 5650225.13084023 1000 1000 school,townhall
 #
 ########
 
@@ -31,16 +31,9 @@ def parse_linestring(linestring, init_x, end_x, init_y, end_y, width, height):
 
     return point_list
 
-def execute_query():
+def execute_query(init_x, init_y, end_x, end_y, width, height, layers):
 
     # try:
-    init_x = min(float(argv[1]), float(argv[3]))
-    init_y = min(float(argv[2]), float(argv[4]))
-    end_x = max(float(argv[1]), float(argv[3]))
-    end_y = max(float(argv[2]), float(argv[4]))
-    width = int(argv[5])
-    height = int(argv[6])
-    layers = argv[7].split(",")
 
     # Instantiating the drawer helper
     image_drawer = drawer.Image(width, height)
@@ -106,29 +99,28 @@ def execute_query():
             point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
             image_drawer.draw_linestring(point_list, stroke_color)
     
-    image_drawer.save("map.png")
+    filename = f"tuiles/highway-{init_x}-{init_y}-{end_x}-{end_y}.png"
+    image_drawer.save(filename)
 
     cursor.close()
     db.close_connection()
+
+    return filename
     # except:
     #     print("error")
 
-execute_query()
 
+######
+# Use this if wants to run only q11.py without using the server.
+######
 
-# SQL Request:
-# SELECT ST_AsText(linestring)
-#                                     FROM ways 
-#                                     WHERE tags ? 'highway' 
-#                                         AND NOT ST_IsEmpty(linestring) 
-#                                         AND ST_Intersects(
-#                                             linestring,
-#                                             ST_SetSRID(
-#                                                 ST_MakeBox2D(
-#                                                     ST_Point(5.7, 45.1),
-#                                                     ST_Point(5.8, 45.2)
-#                                                 ),
-#                                                 4326
-#                                             )
-#                                         );
+# init_x = min(float(argv[1]), float(argv[3]))
+# init_y = min(float(argv[2]), float(argv[4]))
+# end_x = max(float(argv[1]), float(argv[3]))
+# end_y = max(float(argv[2]), float(argv[4]))
+# width = int(argv[5])
+# height = int(argv[6])
+# layers = argv[7].split(",")
+
+# execute_query(init_x, init_y, end_x, end_y, width, height, layers)
 
