@@ -40,7 +40,13 @@ def parse_linestring(linestring, init_x, end_x, init_y, end_y, width, height):
 
 def execute_query(init_x, init_y, end_x, end_y, width, height, layer):
 
-    # try:
+    filename = f"tuiles/{layer}-{init_x}-{init_y}-{end_x}-{end_y}.png"
+
+    try:
+        file = open(filename)
+        return filename
+    except:
+        pass
 
     # Instantiating the drawer helper
     image_drawer = drawer.Image(width, height)
@@ -56,20 +62,17 @@ def execute_query(init_x, init_y, end_x, end_y, width, height, layer):
                                             ), 4326)    
                                         );"""
         )
-    
+
     # For every linestring received, we parse the coordinates and draw them on the final image. 
     for row in cursor:
         point_list = parse_linestring(row[0], init_x, end_x, init_y, end_y, width, height)
         image_drawer.draw_linestring(point_list, color_scheme[layer])
-    
-    filename = f"tuiles/highway-{init_x}-{init_y}-{end_x}-{end_y}.png"
+
     image_drawer.save(filename)
     cursor.close()
     db.close_connection()
 
     return filename
-    # except:
-    #     print("error")
 
 
 ######
