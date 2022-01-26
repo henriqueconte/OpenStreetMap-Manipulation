@@ -14,14 +14,12 @@ class WMSHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
-    # Example of get request: http://localhost:4242/wms?request=GetMap&layer=school,townhall&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
+    # Example of get request: http://localhost:4242/wms?request=GetMap&layers=school,townhall&height=1000&width=1000&srs=EPSG:3857&bbox=5.7,5.8,45.1,45.2
     def do_GET(self):
 
         if self.path.startswith("/wms"):
             # Ici on récupère les valeurs de paramètres GET
             params = urlparse.parse_qs(urlparse.urlparse(self.path).query)
-
-            print(params["request"])
 
             try:
             # Question 12: 
@@ -45,21 +43,21 @@ class WMSHandler(BaseHTTPRequestHandler):
                 height = int(params["height"][0])
                 bbox_list = params["bbox"][0].split(',')
                 init_x = float(bbox_list[0])
-                end_x = float(bbox_list[1])
-                init_y = float(bbox_list[2])
+                init_y = float(bbox_list[1])
+                end_x = float(bbox_list[2])
                 end_y = float(bbox_list[3])
-                layers = params["layer"][0]
+                layers = params["layers"][0]
 
                 # Open question 11 Python file, sending parameters from get request
                 # How to execute: python3 q11.py 5.7 5.8 45.1 45.2 1000 1000
-                os.system(f'python3 q11.py {init_x} {end_x} {init_y} {end_y} {width} {height} {layers}')
+                # print("init_x: ", init_x, "end_x: ", end_x, "init_y ", init_y, "end_y: ", end_y, "width: ", width, "height: ", height, "layers: ", layers)
+                os.system(f'python3 q11.py {init_x} {init_y} {end_x} {end_y} {width} {height} {layers}')
+                print("FINISHED CREATING MAP")
 
             except Exception as inst:
                 self.send_error(500, 'Erreur : %s' % inst)
 
             self._set_headers()
-        
-            print("PARAMS: ", params)
             # params contient tous les paramètres GET
             # Il faut maintenant les traiter...
             # ... C'est à vous !

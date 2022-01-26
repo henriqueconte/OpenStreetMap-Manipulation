@@ -1,0 +1,1 @@
+localhost:4242/wms?request=GetMap&layer=nom&height=100&width=100&srs=EPSG:3857
