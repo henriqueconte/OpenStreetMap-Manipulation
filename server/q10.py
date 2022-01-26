@@ -8,7 +8,6 @@ def execute_query():
         search_word = " '%" + search_word + "%' "
         
         print(search_word)
-
         
         cursor = db.execute_query("SELECT tags->'name', ST_X(geom), ST_Y(geom) FROM nodes WHERE tags->'name' LIKE" + search_word + ";")
        

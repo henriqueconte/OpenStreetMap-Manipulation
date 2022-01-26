@@ -2,9 +2,9 @@
 var map = L.map('map').setView([45.15, 5.75], 13);
 
 var layers = {
-    'highway': { name: 'Routes', default: true },
-    'school': { name: 'Écoles', default: true },
-    'townhall': { name: 'Mairie', default: true }
+    'highway': { name: 'Highways', default: true },
+    'amenity': { name: 'Amenity', default: true },
+    'waterway': { name: 'Waterway', default: true }
 };
 
 var CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
